@@ -1,0 +1,101 @@
+---
+title: "Bing-Je_Wu_HW1"
+author: "Bing-Je Wu"
+date: "4/14/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Vectors and Variable setup:
+```{r setup vectors and variable}
+height <- c(59,60,61,58,67,72,70)
+weight <- c(150,140,180,220,160,140,130)
+a <- 150
+```
+
+
+## Step 1: Calculating means
+1) Compute, using R, the average height (called mean in R)
+```{r}
+mean(height)
+```
+
+2) Compute, using R, the average weight (called mean in R)
+```{r}
+mean(weight)
+```
+
+3) Calculate the length of the vector ‘height’ and ‘weight’
+```{r}
+length(height)
+length(weight)
+```
+
+4) Calculate the sum of the heights
+```{r}
+sum(height)
+```
+
+5) Compute the average of both height and weight, by dividing the sum (of the height or the width, as appropriate), by the length of the vector. How does this compare to the ‘mean’ function?
+```{r}
+sum(height)/length(height)
+sum(weight)/length(weight)
+```
+```{}
+Comparing with the 'mean' function, it has the same answer.
+From the coding point of view, using 'mean' function is faster.
+```
+
+
+
+## Step 2: Using max/min functions
+1) Compute the max height, store the result in ‘maxH’
+```{r}
+maxH <- max(height)
+```
+2) Compute the min weight, store the results in ‘minW’
+```{r}
+minW <- min(weight)
+```
+
+
+
+
+## Step 3: Vector Math
+8) Create a new vector, which is the weight + 5 (every person gained 5 pounds)
+```{r}
+N_weight <- weight + 5 
+```
+9) Compute the weight/height for each person, using the new weight just created
+```{r}
+N_weight/height
+```
+
+
+
+
+## Step 4: Using Conditional if statements
+Hint: In R, one can do:
+if ( 100 < 150 ) "100 is less than 150" else "100 is greater than 150"
+
+10) Write the R code to test if max height is greater than 60 (output “yes” or “no”)
+```{r}
+  if ( max(height) > 60){
+    print('yes') 
+    } else{ 
+      print('no')
+      }
+```
+
+11) Write the R code to if min weight is greater than the variable ‘a’ (output “yes” or
+“no”)
+```{r}
+    if( min(weight) > a){
+      print('yes')
+    } else{
+      print('no')
+    }
+```
