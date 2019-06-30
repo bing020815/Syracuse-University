@@ -10,5 +10,7 @@ It consists of three parts:
 2. Visualization
  - ggplot2
 3. Modeling
- - random forest
- - ksvm
+ - randomForest
+ - Caret
+ - pROC
+ - kernlab
