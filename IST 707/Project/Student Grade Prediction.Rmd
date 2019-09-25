@@ -1,0 +1,1302 @@
+---
+title: "Student Grade Predition"
+author: "Bing-Je_Wu and Jason Maloney"
+date: "9/3/2019"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
+```
+## Outlines
+  * Abstract  
+  * Data and Data Processing  
+  * Exploratory Analysis  
+  * Data Modeling  
+    - Association Rule  
+    - K-Mean Clustering  
+    - Naive Bayes  
+    - SVM  
+    - Random Forest
+  * Conclusion  
+  * Next Step
+
+
+# Abstract    
+
+Education plays a vital role in our life. Knowing what factors can affect student’s performance on test scores would be helpful to educators. We want to explore the “Student Grade Prediction” data set from Kaggle to understand the influence of the parent’s background, test preparation and other factors on student’s performance. There are three questions we are interested in:  
+ 1.	What are the fundamental factors that will affect students’ performance on their final grade?  
+ 2.	Which factors influence poor performance on the final grade the most?   
+ 3.	What would be the best way to improve student scores on their final grade?  
+
+#### Describe attribute types for each attribute in the data set  
+```{ }
+# The data contains of a number of the following fields:
+# school      Student’s school: 'GP' or 'MS' 
+# Sex         ‘F’ – Female or ‘M’ – Male
+# Age         ’15 – 22’
+# Address     home address: ‘U’ – urban or ‘R’ – rural
+# Famsize     ‘LE3’ – Less than/equal to 3 or ‘GT3’ – Greater than 3
+# Pstatus     Parent’s cohabitation status: ‘T’ – Living together or ‘A’ – Apart
+# Medu        education: ‘0’ – None, ‘1’ – Primary, ‘2’ – 5th to 9th grade, ‘3’ – Secondary, or ‘4’ – Higher education
+# Fedu        education: ‘0’ – None, ‘1’ – Primary, ‘2’ – 5th to 9th grade, ‘3’ – Secondary, or ‘4’ – Higher education
+# Mjob        ‘teacher’, ‘health’ care related, civil ‘services’ (administrative or police), ‘at_home’, or ‘other’
+# Fjob        ‘teacher’, ‘health’ care related, civil ‘services’ (administrative or police), ‘at_home’, or ‘other’
+# Reason      Reason to choose this school: close to ‘home’, school ‘reputation’, ‘course’ preference, or ‘other’
+# Guardian    Student’s guardian: ‘mother’, ‘father’, or ‘other’
+# Traveltime  Home to school travel time:  ‘1’ - <15 min, ‘2’ – 15 to 30 min, ‘3’ – 30 min to 1 hr, ‘4’ - >1 hr
+# Studytime   Weekly study time:  ‘1’ - <2 hours, ‘2’ – 2 to 5 hours, ‘3’ – 5 to 10 hours, ‘4’ - >10 hours
+# Failures    Number of past class failures: ‘n’ if 1 < n <3, else 4
+# Schoolsup   Extra educational support: ‘yes’ or ‘no’
+# Famsup      Family educational support: ‘yes’ or ‘no’
+# Paid        Extra paid classes within the course subject: ‘yes’ or ‘no’
+# Activities  Extra-curricular activities: ‘yes’ or ‘no’
+# Nursery     Attend nursery school: ‘yes’ or ‘no’
+# Higher      Wants to take higher education: ‘yes’ or ‘no’
+# Internet    Internet access at home: ‘yes’ or ‘no’
+# Romantic    With a romantic relationship: ‘yes’ or ‘no’
+# Famrel      Quality of family relationships: (1 to 5) 1 – very bad   5 – excellent
+# Freetime    Free time after school: (1 to 5)
+# Goout       Going out with friends: (1 to 5)
+# Dalc        Workday alcohol consumption: (1 to 5)
+# Walc        Weekend alcohol consumption: (1 to 5)
+# Health      Current health status: (1 to 5)
+# Absences    Number of school absences: 0 to 93
+# G1          First period grade: 0 to 20
+# G2          Second period grade: 0 to 20
+# G3          Final grade: 0 to 20 (output target)
+```
+
+
+
+
+# Data and Data Processing 
+```{r Load Package , echo = FALSE}
+library(arules) # association rule mining
+library(arulesViz)
+library(cluster)
+library(factoextra) # HAC
+library(dendextend) 
+library(gridExtra)
+library(VCA)
+library(corrplot)
+library(tidyverse) # tibble, ggplot2, plyr
+library(naivebayes)
+library(e1071)  # SVM
+library(caret)
+library(randomForest) # random forest
+```
+
+```{r Import the data set, include = FALSE}
+math <- read_csv("student-mat.csv")
+```
+
+#### Are there and missing values?
+```{r}
+colSums(is.na(math))
+```
+
+#### Structure of the dataset
+```{r}
+str(math)
+```
+
+#### Summary
+```{r}
+summary(math)
+```
+
+### Need to change the factor attributes to numeric for Clustering Analysis
+```{r Preprocessing for Clustering Analysis}
+math.num <- math %>% 
+#School: 0 = GP - Gabriel Pereira,  1 = MS – Mousinho da Silveira
+  mutate(school = ifelse(school == "GP", 0 ,1)) %>% 
+
+# sex: 0 = F, 1 = M 
+  mutate(sex = ifelse(sex == "F", 0, 1 )) %>% 
+  
+# address: 0 = U - Urban, 1 = R - Rural
+  mutate(address = ifelse(address == "U", 0, 1)) %>% 
+  
+# famsize: 0 = LE3 - Less than or equal to 3, 1 = GT3 - Greater than 3    
+  mutate(famsize = ifelse(famsize == "LE3",0, 1)) %>% 
+  
+# Pstatus: 0 = T - Living together, 1 = A - Living apart
+  mutate(Pstatus = ifelse(Pstatus == "T", 0, 1)) %>% 
+
+# Mjob: 0 = 'Teacher',  1 = 'Health' care related, 2 = Civil 'services', 3 = 'at_home', 4 = 'other'
+  mutate(Mjob=ifelse(Mjob=="teacher",0,
+                         ifelse(Mjob=="health", 1, 
+                                ifelse(Mjob=="services", 2,
+                                       ifelse(Mjob=="at_home", 3, 4))))) %>%
+
+# Fjob: 0 = 'Teacher',  1 = 'Health' care related, 2 = Civil 'services', 3 = 'at_home', 4 = 'other'
+  mutate(Fjob=ifelse(Fjob=="teacher",0,
+                         ifelse(Fjob=="health", 1, 
+                                ifelse(Fjob=="services", 2,
+                                       ifelse(Fjob=="at_home", 3, 4)))))  %>%
+
+# reason: 0 = Close to 'home', 1 = school 'reputation', 2 = 'course' preference, 3 = other
+  mutate(reason=ifelse(reason=="home",0,
+                         ifelse(reason=="reputation", 1, 
+                                ifelse(reason=="course", 2,3))))  %>% 
+
+# guardian: 0 = mother, 1 = father, 2 = other
+  mutate(guardian=ifelse(guardian=="mother",0,
+                         ifelse(guardian=="father", 1, 2))) %>%
+
+# schoolsup: 0 = 'no', 1 = 'yes'
+  mutate(schoolsup = ifelse(schoolsup == "no", 0, 1)) %>% 
+  
+# famsup: 0 = 'no', 1 = 'yes'
+  mutate(famsup = ifelse(famsup == "no", 0, 1)) %>% 
+
+# paid: 0 = 'no', 1 = 'yes'
+  mutate(paid = ifelse(paid == "no", 0, 1)) %>% 
+  
+# activities: 0 = 'no', 1 = 'yes'
+  mutate(activities = ifelse(activities == "no", 0, 1)) %>% 
+
+# nursery: 0 = 'no', 1 = 'yes'
+  mutate(nursery = ifelse(nursery == "no", 0 , 1)) %>% 
+
+# higher: 0 = 'no', 1 = 'yes'
+  mutate(higher = ifelse(higher == "no", 0, 1)) %>% 
+
+# internet: 0 = 'no', 1 = 'yes'
+  mutate(internet = ifelse(internet == "no", 0, 1)) %>% 
+
+# romantic: 0 = 'no', 1 = 'yes'
+  mutate(romantic = ifelse(romantic == "no", 0, 1))
+```
+
+#### Convert nominal from character to numeric.
+```{r}  
+# To use this method, the above replacement must not use gsub() -BW
+math.num <- math.num %>% 
+  mutate_if(is.character, funs(as.numeric))
+```
+
+### Discretize numeric variables for Association Rule Minging
+#### Bin the grades in G1, G2, G3 to A [16, 20], B [14, 16), C [12, 14), D[10, 12), F [0, 10)
+```{r Preprocessing for Association Rule}
+math.assoc <- math %>% 
+  mutate(G1_bin = ifelse(
+    G1 < 10, "F", ifelse(
+      G1 < 12, "D", ifelse(
+        G1 < 14, "C", ifelse(
+          G1 < 16, "B", "A"  )  )  )  )  ) %>%
+  mutate(G2_bin = ifelse(
+    G2 < 10, "F", ifelse(
+      G2 < 12, "D", ifelse(
+        G2 < 14, "C", ifelse(
+          G2 < 16, "B", "A"  )  )  )  )  ) %>%
+  mutate(G3_bin = ifelse(
+    G3 < 10, "F", ifelse(
+      G3 < 12, "D", ifelse(
+        G3 < 14, "C", ifelse(
+          G3 < 16, "B", "A"  )  )  )  )  )
+```
+
+#### Convert data type to nominal for performing association rule mining
+```{r}
+math.assoc <- math.assoc %>%
+  mutate_all(funs(as.factor))
+
+#check datatype
+glimpse(math.assoc)
+```
+
+
+
+# Exploratory Analysis  
+#### Visualization
+```{r }
+# Correlation between G1 and G2
+math %>% 
+  ggplot(aes(x=G1, y=G2)) +
+  geom_jitter(aes(col=G3)) +
+  scale_color_continuous(low = "red", high = "blue") +
+  xlab("Score on G1") +
+  ylab("Score on G2") +
+  ggtitle("Plot 0. Scores throughout the year")
+
+
+# How many students passed (10 - 20) and how many failed? (0 - 9)
+math %>% 
+  mutate(pass = ifelse(G3 > 9, "pass", "fail")) %>% 
+  ggplot(aes(x = pass, fill = pass)) +
+  geom_bar() +
+  xlab("Result at End of Term") +
+  ylab("Number of Students") +
+  annotate(geom="text", label = "265", x = 2, y = 250) +
+  annotate(geom="text", label = "130", x = 1, y = 115) +
+  annotate(geom="text", label = "67.1%", x = 2, y = 235) +
+  annotate(geom="text", label = "32.9%", x = 1, y = 100) +
+  ggtitle("Plot 1. Students Pass Rate") +
+  theme_light()
+
+# School
+math.assoc %>%
+  ggplot(aes(x=address)) +
+  geom_bar(aes(fill=reason)) +
+  geom_text(stat = "count", aes(label=stat(count)), vjust=-1) +
+  ggtitle("Plot 2. School comparison") +
+  facet_wrap(~school) +
+  ylim(0,330) +
+  theme_light() + 
+  geom_text(data=math.assoc %>% group_by(school) %>% tally(), 
+            aes(x=1.5, y=330, label = paste0( round(n/sum(n), digits = 2)*100, "%")), 
+              vjust = 1.5, size = 5)
+
+# Parent job, education vs grade
+#- Mother
+math.assoc %>%
+  ggplot(aes(x=Mjob, y=G3)) + 
+  geom_jitter(aes(col=Medu)) + 
+  ggtitle("Plot 3. Mother's education and mother's job", subtitle = "Male vs Female") +
+  facet_grid(~sex) +
+  ylab("Final Grade") +
+  xlab("Job") +
+  geom_hline(yintercept = 7) +
+  annotate(geom="text", label = "Pass", x = 0.8, y = 7.5) +
+  annotate(geom="text", label = "Fail", x = 0.8, y = 6) +
+  theme_light()
+
+#- Father
+math.assoc %>%
+  ggplot(aes(x=Fjob, y=G3)) +
+  geom_jitter(aes(col=Fedu)) +
+  ggtitle("Plot 4. Father's education and father's job", subtitle = "Male vs Female") +
+  facet_wrap(~sex) +
+  ylab("Final Grade") +
+  xlab("Job") +
+  geom_hline(yintercept = 7) +
+  annotate(geom="text", label = "Pass", x = 0.8, y = 7.5) +
+  annotate(geom="text", label = "Fail", x = 0.8, y = 6) +
+  theme_light()
+
+# Failures, school support vs grade
+math.assoc %>%
+  ggplot(aes(x=failures, y=G3)) +
+  geom_jitter(aes(col=sex)) +
+  ggtitle("Plot 5. Failures vs Final Grade", subtitle = "School educational support") +
+  facet_wrap(~schoolsup) +
+  ylab("Final grade") +
+  xlab("Number of failures") +
+  theme_light()
+
+# Family size, Family support, parent status, family relationship vs grade
+math.assoc %>%
+  ggplot(aes(x=famsize, y=G3)) +
+  geom_jitter(aes(col=famrel, shape=Pstatus)) +
+  ggtitle("Plot 6. Family Size vs Final Grade", subtitle = "Family educational support") +
+  facet_wrap(~famsup) +
+  ylab("Final grade") +
+  xlab("Family size") +
+  theme_light()
+
+# Goout, freetime, studytime, Walc, Dalc
+math.assoc %>%
+  ggplot(aes(x=studytime, y=G3)) +
+  geom_jitter(aes(col=goout)) +
+  ggtitle("Plot 7. Study time vs Final Grade", subtitle = "Free time") +
+  facet_grid(~freetime) +
+  ylab("Final grade") +
+  xlab("Study time") +
+  scale_color_discrete(name="Go out") +
+  theme_light()
+
+# Absences, activities, vs grade
+math.assoc %>%
+  ggplot(aes(x=absences, y=G3)) +
+  geom_jitter(aes(col=activities)) +
+  ggtitle("Plot 8. Absences vs Final Grade") +
+  ylab("Final grade") +
+  scale_color_discrete(name="Extra-curricular activities") +
+  theme_light()
+```
+
+* Observation:
+  + Plot 1:
+    - Students from the data set have 67.1% pass rate and 32.9% fail rate
+  + Plot 2:
+    - School variable could be bias since GP has more students than MS
+  + Plot 3 and 4:
+    - People who works as a teacher or work in health care field tend to have higher level of education
+    - Male with mother working as a teacher tend to get high grade on final grade
+    - Male with father working as a teacher tend to get high grade on final grade
+  + Plot 5:
+    - With school extra education support, it can lower down the number of students getting zero
+  + Plot 6:
+    - People whose family are apart and have high level of family relationship tend to perform better on final grade
+    - Overall, small family has better performance than huge family
+  + Plot 7:
+    - Students who have middle level of free time and going out tend to get better performance 
+    - Study more than 10 hours (level 4) does not really have huge impact on the final grade
+    - Students who go out a lot have the potential risk of failing on the final grade
+  + Plot 8:
+    - Having Extra-curricular activities with lower number of absences tend to help student get better performance
+
+
+
+
+# Data Modeling    
+## **Association rule mining**
+#### Create rules from high level   
+```{r, results = 'hide', warning = FALSE}
+# Remove grade variables from data set
+association <- math.assoc %>%
+  select(-c(G1,G2,G3))
+# Run apriori with setting, sup = 0.05, conf = 0.95, maxlen = 3 
+rules <-  apriori(data = association, parameter = list(sup = 0.2, conf = 0.95, maxlen = 3), 
+                  control = list(verbose=F))
+# lookup the summary of rule
+summary(rules)
+```
+
+* Observation: 
+  + with the parameter setting, support = 0.05 and confident = 0.95,it has 461 rules
+  + Rule length = 3 has 418 rules
+  + Rule length = 2 has 43 rules
+  + Maximum count = 332
+  + Mximum cofidence = 1
+  + Maximum support = 0.84
+  + Maximum lift = 2.601
+
+#### Inspect rules from high level  
+```{r}
+# Sort by confidence and lift to see most relevant rules
+rules <- sort(rules, by = c("confidence", "lift", "support"), decreasing = TRUE)
+
+# Redundant rules
+inspect(rules[is.redundant(rules)][1:20])
+
+# View the non-redundant rules
+inspect(rules[!is.redundant(rules)][1:20])
+
+# plot the rules by scatterplot
+plot(rules, measure = c("support", "lift"), shading = "confidence")
+
+# visualize the grouped matrix on the first 20 rules
+plot(rules[1:20], method = "grouped")
+
+# plot the first 20 rules
+plot(rules[1:20], method="graph", interactive=FALSE, shading=NA)
+
+# Parallel coordinates plot on the first 20 rules
+plot(rules[1:20], method="paracoord", reorder=TRUE)
+```
+
+* Observation:
+  + Rules with shool=GP appears many times 
+    - It may be bias because the uneven samples on two schools
+    - Need to plot a school comparison for validation
+  + Rule with higher education appears many times
+    - Students at age 15 want to get higher education
+    - Students whose mother has higher education level tend to get higher education as well
+    - Female wants to get higher education
+    
+### Relationship with G3 
+#### Rules with grade A, sup = 0.01, conf = 0.7, maxlen = 4
+```{r}
+rules.G3.A <- 
+  apriori(data = association[,-(31:32)], parameter = list(sup = 0.01, conf = 0.7, maxlen = 4), 
+          appearance = list(default="lhs",rhs=c("G3_bin=A")),
+          control = list(verbose=F))
+summary(rules.G3.A)
+rules.G3.A <- sort(rules.G3.A, by = c("confidence", "lift", "support"), decreasing = TRUE)
+inspect(rules.G3.A[!is.redundant(rules.G3.A)])
+
+# visualize the grouped matrix on the first 20 rules
+plot(rules.G3.A[1:20], method = "grouped")
+```
+
+* Observation: (22 rules)
+  + Mother is a teacher; reason choosing school is because of course; have free time after school
+  + Mother is a teacher; don't have family educational support; have extra-curricular activities
+  + Mother has higher education level; reason choosing school is because of course; have free time after school
+  + Male students; mother is a teacher; have free time after school
+  + Father is a teacher, reason choosing school is because of course; have extra-curricular activities
+  
+#### Rules with grade B  
+```{r}
+rules.G3.B <- 
+  apriori(data = association[,-(31:32)], parameter = list(sup = 0.01, conf = 0.8, maxlen = 4), 
+          appearance = list(default="lhs",rhs=c("G3_bin=B")),
+          control = list(verbose=F))
+summary(rules.G3.B)
+rules.G3.B <- sort(rules.G3.B, by = c("confidence", "lift", "support"), decreasing = TRUE)
+inspect(rules.G3.B[!is.redundant(rules.G3.B)])
+```
+
+* Observations: (16 rules)
+  + Nothing of note
+
+#### Rules with grade C
+```{r}
+rules.G3.C <- 
+  apriori(data = association[,-(31:32)], parameter = list(sup = 0.01, conf = 0.8, maxlen = 4), 
+          appearance = list(default="lhs",rhs=c("G3_bin=C")),
+          control = list(verbose=F))
+summary(rules.G3.C)
+rules.G3.C <- sort(rules.G3.C, by = c("confidence", "lift", "support"), decreasing = TRUE)
+inspect(rules.G3.C[!is.redundant(rules.G3.C)])
+```
+
+* Observation: (31 rules)
+  + Mother's job is other; workday alcohol consumption level is extreme high
+  + Familiy size is greater than 3; family relationship is extremely low; no class failure
+  + Mother's job is other; weekend alcohol consumption level is extreme high; have family educational support
+
+#### Rules with grade D
+```{r}
+rules.G3.D <- 
+  apriori(data = association[,-(31:32)], parameter = list(sup = 0.01, conf = 0.95, maxlen = 4), 
+          appearance = list(default="lhs",rhs=c("G3_bin=D")),
+          control = list(verbose=F))
+summary(rules.G3.D)
+rules.G3.D <- sort(rules.G3.D, by = c("confidence", "lift", "support"), decreasing = TRUE)
+inspect(rules.G3.D[!is.redundant(rules.G3.D)])
+```
+
+* Observations : (40 rules)
+  + Nothing of note
+
+#### Rules with grade F
+```{r}
+rules.G3.F <- 
+  apriori(data = association[,-(31:32)], parameter = list(sup = 0.03, conf = 0.8, maxlen = 3), 
+          appearance = list(default="lhs",rhs=c("G3_bin=F")),
+          control = list(verbose=F))
+summary(rules.G3.F)
+rules.G3.F <- sort(rules.G3.F, by = c("confidence", "lift", "support"), decreasing = TRUE)
+inspect(rules.G3.F[!is.redundant(rules.G3.F)])
+```
+
+* Observation: (4 rules)
+  + Students had failed 3 classes and no extra educational support from schools
+  + Students had failed 2 classes
+  + Stduents going out with friends frequently and have no absences 
+  
+
+## **Cluster analysis**
+#### k-means needs to have numeric data, so use math.num and standardize the data
+```{r}
+math.stand<- math.num %>% scale()
+```
+### Find the optimal number of clusters
+#### 1. Gap Statistic Method  
+Minimizes the intra-cluster variation. The Gap Statistic compares the total within intra-cluster variation for different values of k with their expected values under null reference distribution of the data. The estimate of the optimal clusters will be the value that maximize the gap statistic.
+```{r, results = 'hide', warning = FALSE, message = FALSE}
+gs.graph <- fviz_nbclust(math.stand, kmeans, method = "gap_stat") + 
+  labs(subtitle = "Gap Statistic Method")
+gs.graph
+```
+  
+#### 2. Elbow Method  
+The Elbow Method to define clusters such that the total intra-cluster variation, or total within-cluster sum of square (WSS), is minimized. The optimal number of clusters is the k value such that adding an additional cluster will not improve WSS by a significant amount.  
+```{r}
+elbow <- fviz_nbclust(math.stand, kmeans, method = "wss") + 
+  labs(subtitle = "Elbow Method")
+
+elbow
+```
+
+#### Elbow Method - alternative 
+```{r Prepare data for the elbow graph}
+set.seed(23)
+# Function to compute totla within-cluster sum of square
+wss <- function(x){
+  kmeans(math.num, x, nstart = 10)$tot.withinss
+}
+
+# Compute and plot wss for k = 1 to k = 10 (or 15)
+k.values <- 1:10
+
+# Extract wss for 2 - 15 clusters
+wss.values <- map_dbl(k.values, wss)
+
+# Create a dataframe of k.values and wss.values to plotf
+wss.df <- as.data.frame(k.values,wss.values)
+
+# Elbow graph
+elbow2 <- ggplot(data = wss.df, aes(x = k.values, y = wss.values)) +
+  xlab("Number of Clusters, K") +
+  ylab("Total Within-Clusters Sum of Squares") +
+  geom_point() + 
+  geom_line() +
+  geom_vline(xintercept = 4, linetype = "dashed") +
+  ggtitle("Optimal number of clusters", subtitle = "Elbow Method") +
+  theme_classic()
+elbow2
+```
+
+#### 3. Silhouette Method  
+Silhouette measures how well an observation is clustered and approximates the average distance between clusters. Silhouette values fall between -1 and 1. A negative value suggests the data point is in the wrong cluster, a value near 0 means the data point is between two clusters, and values closer to 1 mean the data point is in the proper cluster.  
+```{r}
+sil <- fviz_nbclust(math.stand, kmeans, method = "silhouette") + 
+  labs(subtitle = "Silhouette Method")
+```
+  
+#### Plot each graph to find optimal number of clusters.  
+```{r, fig.height = 9}
+grid.arrange(gs.graph, elbow2, sil, nrow = 3)
+```
+
+* Observations: 
+  - The Gap Statistic and Elbow Method suggest 4 clusters, and the Silhouette method suggests 2 clusters.
+  - Try k = 2 - 5 to find the optimal clustering.
+
+### k = 2
+```{r}
+set.seed(19)
+math.k2 <- kmeans(math.num, 
+                  centers = 2, 
+                  nstart = 25)
+math.k2
+```
+
+```{r}
+math.k.plot <- math %>% 
+  mutate(cluster2 = as.factor(math.k2$cluster)) %>% 
+  mutate(id = 1:nrow(math))
+
+```
+  
+#### Plot the clusters
+```{r}
+p2 <- fviz_cluster(math.k2, 
+                   data = math.num)
+p2
+```
+
+  Rule with higher education appears many times
+    - Students at age 15 want to get higher education
+    - Students whose mother has higher education level tend to get higher education as well
+    - Female wants to get higher education
+  
+* Observation: (22 rules)
+  + Mother is a teacher; reason choosing school is because of course; have free time after school
+  + Mother is a teacher; don't have family educational support; have extra-curricular activities
+  + Mother has higher education level; reason choosing school is because of course; have free time after school
+  + Male students; mother is a teacher; have free time after school
+  + Father is a teacher, reason choosing school is because of course; have extra-curricular activities
+  
+#### Plot each student and their score on G3
+```{r}
+ggplot(data = math.k.plot, aes(x = Medu, y = G3)) +
+  geom_jitter(aes(color = cluster2)) +
+  facet_grid(~Mjob) +
+  xlab("Mother's Education Level") +
+  ylab("Final Grade") +
+  ggtitle("Mother's Education vs Final Grade", subtitle = "Mother's Job") +
+  geom_hline(yintercept = 10) +
+  annotate(geom="text", label = "Pass", x = 1, y = 9.5, vjust=-1.5) +
+  annotate(geom="text", label = "Fail", x = 1, y = 8.5, vjust = 1) +
+  theme_light()
+```
+
+Mjob: 0 = 'Teacher',  1 = 'Health' care related, 2 = Civil 'services', 3 = 'at_home', 4 = 'other'
+
+The majority of children whose mothers are teachers or in the health care field score well on their final grade. 
+### k = 2
+```{r}
+set.seed(19)
+math.k2 <- kmeans(math.num, 
+                  centers = 2, 
+                  nstart = 25)
+math.k2
+```
+
+```{r}
+math.k.plot <- math %>% 
+  mutate(cluster2 = as.factor(math.k2$cluster)) %>% 
+  mutate(id = 1:nrow(math))
+
+```
+  
+#### Plot the clusters
+```{r}
+p2 <- fviz_cluster(math.k2, 
+                   data = math.num)
+p2
+```
+  
+  Rule with higher education appears many times
+    - Students at age 15 want to get higher education
+    - Students whose mother has higher education level tend to get higher education as well
+    - Female wants to get higher education
+  
+* Observation: (22 rules)
+  + Mother is a teacher; reason choosing school is because of course; have free time after school
+  + Mother is a teacher; don't have family educational support; have extra-curricular activities
+  + Mother has higher education level; reason choosing school is because of course; have free time after school
+  + Male students; mother is a teacher; have free time after school
+  + Father is a teacher, reason choosing school is because of course; have extra-curricular activities
+  
+#### Plot each student and their score on G3
+```{r}
+ggplot(data = math.k.plot, aes(x = Medu, y = G3)) +
+  geom_jitter(aes(color = cluster2)) +
+  facet_grid(~Mjob) +
+  xlab("Mother's Education Level") +
+  ylab("Final Grade") +
+  ggtitle("Mother's Education vs Final Grade", subtitle = "Mother's Job") +
+  geom_hline(yintercept = 10) +
+  annotate(geom="text", label = "Pass", x = 1, y = 9.5, vjust=-1.5) +
+  annotate(geom="text", label = "Fail", x = 1, y = 8.5, vjust = 1) +
+  theme_light()
+```
+
+Mjob: 0 = 'Teacher',  1 = 'Health' care related, 2 = Civil 'services', 3 = 'at_home', 4 = 'other'
+
+The majority of children whose mothers are teachers or in the health care field score well on their final grade. 
+
+### k = 3
+```{r}
+set.seed(19)
+math.k3 <- kmeans(math.num,
+                  centers = 3,
+                  nstart = 25)
+math.k3
+```
+
+```{r}
+p3 <- fviz_cluster(math.k3,
+                   data = math.num)
+p3
+```
+
+```{r}
+math.k.plot <- math.k.plot %>% 
+  mutate(cluster3 = as.factor(math.k3$cluster))
+```
+
+```{r}
+ggplot(data = math.k.plot, aes(x = Medu, y = G3)) +
+  geom_jitter(aes(color = cluster3)) +
+  facet_grid(~Mjob) +
+  xlab("Mother's Education Level") +
+  ylab("Final Grade") +
+  ggtitle("Mother's Education vs Final Grade", subtitle = "Mother's Job") +
+  geom_hline(yintercept = 10) +
+  annotate(geom="text", label = "Pass", x = 1.3, y = 9.5, vjust=-1.5) +
+  annotate(geom="text", label = "Fail", x = 1.3, y = 8.5, vjust = 1) +
+  theme_light()
+```
+
+```{r}
+ggplot(data = math.k.plot, aes(x = schoolsup, y = G3)) +
+ geom_jitter(aes(color = cluster3)) +
+ facet_grid(~failures) +
+ xlab("Student") +
+ ylab("Final Grade") +
+ geom_hline(yintercept = 10) +
+ annotate(geom="text", label = "Pass", x = 1.3, y = 9.5, vjust = -1.5) +
+ annotate(geom="text", label = "Fail", x = 1.3, y = 8.5, vjust = 0) +
+ ggtitle("School Support vs Final Score", subtitle = "Number of Failures") +
+  theme_light()
+```
+
+```{r}
+ggplot(data = math.k.plot, aes(x = Walc, y = G3)) +
+  geom_jitter(aes(color = cluster3)) +
+  facet_grid(~Mjob) +
+  xlab("Weekend Alcohol Consumption") +
+  ylab("Final Grade") + 
+  ggtitle("Weekend Alcohol Consumption vs Final Grade", subtitle = "Mother's Job") +
+  geom_hline(yintercept = 10) +
+  annotate(geom="text", label = "Pass", x = 1.3, y = 9.5, vjust = -1.5) +
+  annotate(geom="text", label = "Fail", x = 1.3, y = 8.5, vjust = 0) +
+  theme_light()
+```
+
+The students seem to be clustered by the performance on G3. Students who scored above 11 are in Cluster 3, 4-18 in Cluster 2 and 0-12 in cluster 3.  
+
+```{r}
+ggplot(data = math.k.plot, aes(x = famrel, y = G3)) +
+  geom_jitter(aes(color = cluster3)) +
+  facet_grid(~freetime) +
+  xlab("Family Relationship") +
+  ylab("Final Grade") + 
+  ggtitle("Family Relationship vs Final Grade", subtitle = "Amount of Freetime") +
+  geom_hline(yintercept = 10) +
+  annotate(geom="text", label = "Pass", x = 1.3, y = 9.5, vjust = -1.5) +
+  annotate(geom="text", label = "Fail", x = 1.2, y = 8.5, vjust = 0) +
+  theme_light()
+
+```
+
+### k = 4
+```{r}
+set.seed(19)
+math.k4 <- kmeans(math.num,
+                  centers = 4,
+                  nstart = 25)
+math.k4
+```
+
+```{r}
+p4 <- fviz_cluster(math.k4,
+                   data = math.num)
+p4
+```
+
+#### Add the cluster to the dataframe
+```{r}
+math.k.plot <- math.k.plot %>% 
+  mutate(cluster4 = as.factor(math.k4$cluster))
+```
+
+#### Plot the clusters on x and students on y
+```{r}
+ggplot(data = math.k.plot, aes(x = Medu, y = G3)) +
+  geom_jitter(aes(color = cluster4)) +
+  facet_grid(~Mjob) +
+  xlab("Mother's Education Level") +
+  ylab("Final Grade") +
+  ggtitle("Mother's Education vs Final Grade", subtitle = "Mother's Job") +
+  geom_hline(yintercept = 10) +
+  annotate(geom="text", label = "Pass", x = 1, y = 9.5, vjust=-1.5) +
+  annotate(geom="text", label = "Fail", x = 1, y = 8.5, vjust = 1)
+```
+
+```{r}
+ggplot(data = math.k.plot, aes(x = schoolsup, y = G3)) +
+  geom_jitter(aes(color = cluster4)) +
+  facet_grid(~failures) +
+  xlab("Student") +
+  ylab("Final Grade") +
+  geom_hline(yintercept = 10) +
+  annotate(geom="text", label = "Pass", x = 1, y = 9.5, vjust = -1.5) +
+  annotate(geom="text", label = "Fail", x = 1, y = 8.5, vjust = 0)
+  
+```
+If a student fails a class 2 or more times, they are likely to fail it again.  
+
+### k = 5
+```{r}
+set.seed(19)
+math.k5 <- kmeans(math.num,
+                  centers = 5,
+                  nstart = 25)
+math.k5
+```
+
+```{r}
+p5 <- fviz_cluster(math.k5,
+                   data = math.num)
+p5
+```
+
+#### Add the cluster to the dataframe
+```{r}
+math.k.plot <- math.k.plot %>% 
+  mutate(cluster5 = as.factor(math.k5$cluster))
+```
+
+
+#### Plot the clusters on x and students on y
+```{r}
+ggplot(data = math.k.plot, aes(x = Medu, y = G3)) +
+  geom_jitter(aes(color = cluster5)) +
+  facet_grid(~Mjob) +
+  xlab("Mother's Education Level") +
+  ylab("Final Grade") +
+  ggtitle("Mother's Education vs Final Grade", subtitle = "Mother's Job") +
+  geom_hline(yintercept = 10) +
+  annotate(geom="text", label = "Pass", x = 1, y = 9.5, vjust = -1.5) +
+  annotate(geom="text", label = "Fail", x = 1, y = 8.5, vjust = 1) +
+  theme_light()
+```
+
+Cluster 1 has students that scored 11 or higher. This is the majority of students who earned a passing score on G3. Cluster 3 has those students that scored 0 on G3, suggesting that they did not take the final exam. Cluster 2 has teh largest variance of scores, from 5 to 18. Cluster 4 has those middling students (scores between 6 and 13) who would likely pass the exam with extra help. Cluster 5 has less than 10 students.
+
+The majority of students in Cluster 1 passed the G3 exam. What do they have in common?
+
+```{r}
+clust.1.math.k5 <- math.k.plot %>% 
+  filter(cluster5 == "1")
+
+ggplot(data = math[clust.1.math.k5$id, ], aes(x = Medu, y = G3)) +
+  geom_jitter(aes(color = Mjob)) +
+  facet_grid(~studytime) +
+  ggtitle("Cluster 1: Mother's Job vs Mother's Education", subtitle = "Student's study time level") +
+  labs(x = "Education Level",
+       y = "G3 Grade") +
+  geom_hline(yintercept = 9) +
+   annotate(geom="text", label = "Pass", x = 0.75, y = 9.5, vjust = -0.5) +
+  annotate(geom="text", label = "Fail", x = 0.75, y = 8.5, vjust = 1) +
+  theme_light()
+```
+  
+It looks like those students that have final scores between 6 and 11 should put in more study time. There are more see through dots than solid ones.
+
+```{r}
+clust.2.math.k5 <- math.k.plot %>% 
+  filter(cluster5 == "2")
+
+ggplot(data = math[clust.2.math.k5$id, ], aes(x = Medu, y = G3)) +
+  geom_jitter(aes(color = Mjob)) +
+  facet_grid(~studytime) +
+  ggtitle("Cluster 2: Mother's Job vs Mother's Education", subtitle = "Student's study time level") +
+  labs(x = "Education Level",
+       y = "G3 Grade") +
+  geom_hline(yintercept = 9) +
+  annotate(geom="text", label = "Pass", x = 2.2, y = 9.5, vjust = -0.5) +
+  annotate(geom="text", label = "Fail", x = 2.2, y = 8.5, vjust = 1) +
+  theme_light()
+```
+
+```{r}
+clust.3.math.k5 <- math.k.plot %>% 
+  filter(cluster5 == "3")
+
+ggplot(data = math[clust.3.math.k5$id, ], aes(x = Medu, y = G3)) +
+  geom_jitter(aes(color = Mjob)) +
+  facet_grid(~studytime) +
+  ggtitle("Cluster 3: Mother's Job vs Mother's Education", subtitle = "Student's study time level") +
+  labs(x = "Education Level",
+       y = "G3 Grade") +
+  geom_hline(yintercept = 9) +
+  annotate(geom="text", label = "Pass", x = 0.75, y = 9.5, vjust = -0.5) +
+  annotate(geom="text", label = "Fail", x = 0.75, y = 8.5, vjust = 1) +
+  theme_light()
+```
+
+```{r}
+clust.4.math.k5 <- math.k.plot %>% 
+  filter(cluster5 == "4")
+
+ggplot(data = math[clust.4.math.k5$id, ], aes(x = Medu, y = G3)) +
+  geom_jitter(aes(color = Mjob)) +
+  facet_grid(~studytime) +
+  ggtitle("Cluster 4: Mother's Job vs Mother's Education", subtitle = "Student's study time level") +
+  labs(x = "Education Level",
+       y = "G3 Grade") +
+  geom_hline(yintercept = 9) +
+  annotate(geom="text", label = "Pass", x = 1.3, y = 9.5, vjust = -0.5) +
+  annotate(geom="text", label = "Fail", x = 1.3, y = 8.5, vjust = 1) +
+  theme_light()
+```
+
+```{r}
+clust.5.math.k5 <- math.k.plot %>% 
+  filter(cluster5 == "5")
+
+ggplot(data = math[clust.5.math.k5$id, ], aes(x = Medu, y = G3)) +
+  geom_jitter(aes(color = Mjob)) +
+  facet_grid(~studytime) +
+  ggtitle("Cluster 5: Mother's Job vs Mother's Education", subtitle = "Student's study time level") +
+  labs(x = "Education Level",
+       y = "G3 Grade") +
+  geom_hline(yintercept = 9) +
+  annotate(geom="text", label = "Pass", x = 1.1, y = 9.5, vjust = -0.2) +
+  annotate(geom="text", label = "Fail", x = 1.1, y = 8.5, vjust = 1) +
+  theme_light()
+```
+
+
+
+## **Naive Bayes**
+#### Use alphabet coding
+```{r}
+math.nb <- math.num %>% 
+  mutate(G1_bin = ifelse(
+    G1 < 10, "F", ifelse(
+      G1 < 12, "D", ifelse(
+        G1 < 14, "C", ifelse(
+          G1 < 16, "B", "A"  )  )  )  )  ) %>%
+  mutate(G2_bin = ifelse(
+    G2 < 10, "F", ifelse(
+      G2 < 12, "D", ifelse(
+        G2 < 14, "C", ifelse(
+          G2 < 16, "B", "A"  )  )  )  )  ) %>%
+  mutate(G3_bin = ifelse(
+    G3 < 10, "F", ifelse(
+      G3 < 12, "D", ifelse(
+        G3 < 14, "C", ifelse(
+          G3 < 16, "B", "A"  )  )  )  )  )
+
+main.var <- c("G3_bin", "G2_bin", "G1_bin", "absences",  "goout", "Medu", "Walc" ,"reason","freetime", "famrel", "health", "age", "Mjob", "Fjob", "Fedu", "studytime")
+
+math.nb <- math.nb %>%
+ select(main.var)
+
+preProc <- preProcess(math.nb, method = c("range","nzv"))
+math.nb.scale <- predict(preProc, newdata=math.nb)
+math.nb.scale <- math.nb.scale %>% mutate_if(is.character, as.factor)
+```
+
+#### Split the data into train (70%) and test(30%)
+```{r}
+set.seed(19)
+inTraining <- createDataPartition(math.nb.scale$G3_bin, p = 0.7, list = FALSE)
+math.train <- math.nb.scale[inTraining,]
+math.test <- math.nb.scale[-inTraining,]
+```
+
+```{r}
+set.seed(19)
+nb.model1 <- naiveBayes(G3_bin ~., data = math.train)
+
+```
+
+Predict with default model
+```{r}
+set.seed(19)
+nb.model.pred <- predict(nb.model1, newdata = math.test, type = "class")
+
+caret::confusionMatrix(data = nb.model.pred,
+                reference = math.test$G3_bin, mode = "prec_recall")
+```
+
+#### Use Cross Validation to find best parameters
+```{r}
+set.seed(19)
+nb.train.control <- trainControl(method = "cv", number = 3)
+
+nb <- train(G3_bin~.,
+                math.train,
+                 method = "naive_bayes",
+                 trControl = nb.train.control)
+plot(nb)
+
+nb.grid <- expand.grid(laplace = seq(1, 3, 1), 
+            usekernel = TRUE,
+           adjust = seq(1, 3, 1))
+
+nb.tune <- train(G3_bin~.,
+                math.train,
+                 method = "naive_bayes",
+                 tuneGrid = nb.grid,
+                 trControl = nb.train.control)
+
+plot(nb.tune)
+
+nb.tune.pred <- predict(nb.tune, newdata=math.test)
+
+confusionMatrix(nb.tune.pred, math.test$G3_bin, mode = "prec_recall")
+```
+
+
+
+## **SVM**
+SVM can take numeric/nominal variables  
+#### set up Pass/Fail classes
+```{r}
+math.svm <- math.num %>% 
+  mutate(G1_bin = ifelse(
+    G1 < 10, "Fail", "Pass")) %>%
+  mutate(G2_bin = ifelse(
+    G2 < 10, "Fail", "Pass"))  %>%
+  mutate(G3_bin = ifelse(
+    G3 < 10, "Fail", "Pass")) 
+
+math.svm <- math.svm %>%
+  select(-c(G1,G2,G3))
+preProc <- preProcess(math.svm, method = c("scale","nzv"))
+math.svm.scale <- predict(preProc, newdata=math.svm)
+math.svm.scale <- math.svm.scale %>% mutate_if(is.character, as.factor)
+```
+
+
+```{r}
+math.svm <- math.assoc %>%
+  select(-c(G1,G2,G3))
+```
+
+#### Split the data into train (70%) and test(30%)
+```{r}
+set.seed(19)
+inTraining <- createDataPartition(math.svm.scale$G3_bin, p = 0.7, list = FALSE)
+math.train <- math.svm.scale[inTraining,]
+math.test <- math.svm.scale[-inTraining,]
+```
+
+
+#### Linear kernel
+```{r}
+set.seed(19)
+svm.model1 <- svm(G3_bin~., data = math.train, type = "C-classification", kernel = "linear")
+svm.pred <- predict(svm.model1, newdata=math.test)
+confusionMatrix(svm.pred, math.test$G3_bin, mode = "prec_recall")
+```
+
+* Observations:
+  + Accuracy : 0.9576 
+  
+  
+#### Polynomial kernel
+```{r}
+set.seed(19)
+svm.model1 <- svm(G3_bin~., data = math.train, type = "C-classification", kernel = "polynomial")
+svm.pred <- predict(svm.model1, newdata=math.test)
+confusionMatrix(svm.pred, as.factor(math.test$G3_bin), mode = "prec_recall")
+```
+
+* Observations:
+  + Accuracy : 0.7034 
+  
+#### Radial kernel
+```{r}
+set.seed(19)
+svm.model1 <- svm(G3_bin~., data = math.train, type = "C-classification", kernel = "radial")
+svm.pred <- predict(svm.model1, newdata=math.test)
+confusionMatrix(svm.pred, as.factor(math.test$G3_bin), mode = "prec_recall")
+```
+
+* Observations:
+  + Accuracy : 0.8814 
+  
+#### Use k-fold cross-validation technique to train model
+#### Linear kernel  
+```{r }
+# Set up 3-fold cross validation procedure
+train_control <- trainControl( method = "cv",   number = 3)
+
+# Tune the model - find the optimal C
+set.seed(19)
+svmGrid <- expand.grid(C = seq(1,10,by=1))
+svm.caret <- train(G3_bin~., data = math.train, method="svmLinear", tuneGrid = svmGrid,
+                  trControl = train_control)
+
+# Visualize the tuning result
+plot(svm.caret)
+
+# Validation
+set.seed(19)
+svm.pred<- predict(svm.caret, newdata = math.test, type="raw")
+
+# Results
+confusionMatrix(svm.pred,math.test$G3_bin, mode = "prec_recall")
+```
+
+* Observations:
+  + Accuracy : 0.9407 
+
+
+#### Polynomial kernel  
+```{r }
+# Set up 3-fold cross validation procedure
+train_control <- trainControl( method = "cv",   number = 3)
+
+# Tune the model
+set.seed(19)
+svmGrid <- expand.grid(degree=seq(2,5,by=1),scale= c(0.01,0.001) , C = seq(1,10,by=1))
+svm.caret <- train(G3_bin~., data = math.train, method="svmPoly", tuneGrid = svmGrid,
+                  trControl = train_control)
+
+# Visualize the tuning result
+plot(svm.caret)
+
+# Validation
+set.seed(19)
+svm.pred<- predict(svm.caret, newdata = math.test, type="raw")
+
+# Results
+confusionMatrix(svm.pred,math.test$G3_bin, mode = "prec_recall")
+```
+
+* Observations:
+  + Accuracy : 0.9492   
+
+
+#### Radial kernel  
+```{r }
+# Set up 3-fold cross validation procedure
+train_control <- trainControl( method = "cv",   number = 3)
+
+# Tune the model
+set.seed(19)
+svmGrid <- expand.grid(sigma=c(0.005, 0.01,0.001) , C = seq(1,10,by=1))
+svm.caret <- train(G3_bin~., data = math.train, method="svmRadial", tuneGrid = svmGrid,
+                  trControl = train_control)
+
+# Visualize the tuning result
+plot(svm.caret)
+
+# Validation
+set.seed(19)
+svm.pred<- predict(svm.caret, newdata = math.test, type="raw")
+
+# Results
+confusionMatrix(svm.pred,math.test$G3_bin, mode = "prec_recall")
+```
+
+* Observations:
+  + Accuracy : 0.9492  
+
+
+
+## **Random Forest**
+Random Forest can take can take numeric/nominal variables
+
+#### Data with five buckets
+```{r}
+math.rf <- math.num %>% 
+  mutate(G1_bin = ifelse(
+    G1 < 10, "F", ifelse(
+      G1 < 12, "D", ifelse(
+        G1 < 14, "C", ifelse(
+          G1 < 16, "B", "A"  )  )  )  )  ) %>%
+  mutate(G2_bin = ifelse(
+    G2 < 10, "F", ifelse(
+      G2 < 12, "D", ifelse(
+        G2 < 14, "C", ifelse(
+          G2 < 16, "B", "A"  )  )  )  )  ) %>%
+  mutate(G3_bin = ifelse(
+    G3 < 10, "F", ifelse(
+      G3 < 12, "D", ifelse(
+        G3 < 14, "C", ifelse(
+          G3 < 16, "B", "A"  )  )  )  )  )
+
+math.rf <- math.rf %>%
+  select(-G1,-G2,-G3)
+preProc <- preProcess(math.rf, method = c("scale","nzv"))
+math.rf.scale <- predict(preProc, newdata=math.rf)
+math.rf.scale <- math.rf.scale %>% mutate_if(is.character, as.factor)
+```
+
+#### Split the data into train (70%) and test(30%)
+```{r}
+set.seed(19)
+inTraining <- createDataPartition(math.rf.scale$G3_bin, p = 0.7, list = FALSE)
+math.train <- math.rf.scale[inTraining,]
+math.test <- math.rf.scale[-inTraining,]
+```
+
+```{r}
+set.seed(19)
+rf.model <- randomForest(G3_bin~., data = math.train, ntree = 500)
+
+rf.model.pred <- predict(rf.model, newdata=math.test)
+
+confusionMatrix(rf.model.pred, math.test$G3_bin, mode = "prec_recall")
+
+# Feature analysis
+varImpPlot(rf.model, n.var = 10)
+```
+
+* Observations:
+  + Accuracy : 0.7521 
+
+#### Use k-fold cross-validation technique to train model  
+```{r }
+# Set up 3-fold cross validation procedure
+train_control <- trainControl( method = "cv",   number = 3)
+
+# Tune the model - find the optimal k
+set.seed(19)
+rfGrid <- expand.grid(mtry = seq(1,10,by=1))
+rf.caret <- train(G3_bin~., data = math.train, method="rf", tuneGrid = rfGrid,
+                  trControl = train_control)
+
+# Visualize the tuning result
+plot(rf.caret)
+
+# Validation
+set.seed(19)
+rf.pred<- predict(rf.caret, newdata = math.test, type="raw")
+
+# Results
+confusionMatrix(rf.pred, math.test$G3_bin)
+
+```
+
+* Observations:
+  + Accuracy : 0.8034
+
+
+
+
+## **Random Forest**
+Random Forest can take can take numeric/nominal variables
+
+#### Data with fail and pass bucket
+```{r}
+math.rf <- math.num %>% 
+  mutate(G1_bin = ifelse(
+    G1 < 10, "Fail", "Pass")) %>%
+  mutate(G2_bin = ifelse(
+    G2 < 10, "Fail", "Pass"))  %>%
+  mutate(G3_bin = ifelse(
+    G3 < 10, "Fail", "Pass")) 
+math.rf <- math.rf %>%
+  select(-c(G1,G2,G3))
+preProc <- preProcess(math.rf, method = c("scale","nzv"))
+math.rf.scale <- predict(preProc, newdata=math.rf)
+math.rf.scale <- math.rf.scale %>% mutate_if(is.character, as.factor)
+```
+
+#### Split the data into train (70%) and test(30%)
+```{r}
+set.seed(19)
+inTraining <- createDataPartition(math.rf.scale$G3_bin, p = 0.7, list = FALSE)
+math.train <- math.rf.scale[inTraining,]
+math.test <- math.rf.scale[-inTraining,]
+```
+
+```{r}
+
+rf.model <- randomForest(G3_bin~., data = math.train, ntree = 500)
+
+rf.model.pred <- predict(rf.model, newdata=math.test)
+
+confusionMatrix(rf.model.pred, math.test$G3_bin, mode = "prec_recall")
+
+# Feature analysis
+varImpPlot(rf.model, n.var = 15)
+```
+
+* Observations:
+  + Accuracy : 0.9492 
+
+#### Use k-fold cross-validation technique to train model  
+```{r }
+# Set up 3-fold cross validation procedure
+train_control <- trainControl( method = "cv",   number = 3)
+
+# Tune the model - find the optimal k
+set.seed(19)
+rfGrid <- expand.grid(mtry = seq(1,10,by=1))
+rf.caret <- train(G3_bin~., data = math.train, method="rf", tuneGrid = rfGrid,
+                  trControl = train_control)
+
+# Visualize the tuning result
+plot(rf.caret)
+
+# Validation
+set.seed(19)
+rf.pred<- predict(rf.caret, newdata = math.test, type="raw")
+
+# Results
+confusionMatrix(rf.pred, math.test$G3_bin, mode = "prec_recall")
+
+```
+
+* Observations:
+  + Accuracy : 0.9492
+
+
+# Conclusion  
+
+1. What are the fundamental factors that will affect students’ performance on their final grade?  
+
+   The largest indicators for a student’s performance at the end of the course are his or her performance in the previous two terms, G1 and G2. Other factors that have large impacts on these scores are the number of absences, the number of previously failed courses, the mother’s and/or father’s education level, and the job held by the mother.  
+
+2.	Which factors influence poor performance on the final grade the most?  
+
+   If a student fails a course and does not have support from the school via tutoring or afterschool help, the student is likely to fail again. As the number of failures increases, the number of students below the Pass/Fail line on the plot increases.  
+
+   Note that of the students that failed a course, the majority fall into the no School Support category. A factor that can have a large impact on each grade period is School Support.  
+
+3. What would be the best way to improve student scores on their final grade?
+   The best way to improve a student’s grade is to help him or her throughout the course. If students are successful in G1 and G2, it is highly probable they will be successful for the end of the course, G3. Students who had no access to school support systems have higher failure rates. This in turn will help the students to pass a course the first time they take it.   
+
+
+
+# Next Step
+
+Gather data from more students so that the models are better able to predict student performance using variables other than previous scores.
+***
