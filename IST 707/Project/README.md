@@ -7,3 +7,18 @@ Machine Learning Algorithms:
 3. K-means Clustering
 4. Naïve Bayes
 5. Support Vector Machine
+
+Packages:
+1.arules # association rule mining
+2. arulesViz
+3. cluster
+4. factoextra # HAC
+5. dendextend 
+6. gridExtra
+7. VCA
+8. corrplot
+9. tidyverse # tibble, ggplot2, plyr
+10. naivebayes
+11. e1071  # SVM
+12. caret
+13. randomForest # random forest
