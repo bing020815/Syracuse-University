@@ -9,7 +9,7 @@ Machine Learning Algorithms:
 5. Support Vector Machine
 
 Packages:
-1.arules - association rule mining
+1. arules - association rule mining
 2. arulesViz
 3. cluster
 4. factoextra - HAC
