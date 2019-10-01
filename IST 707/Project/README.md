@@ -9,16 +9,16 @@ Machine Learning Algorithms:
 5. Support Vector Machine
 
 Packages:
-1.arules # association rule mining
+1.arules - association rule mining
 2. arulesViz
 3. cluster
-4. factoextra # HAC
+4. factoextra - HAC
 5. dendextend 
 6. gridExtra
 7. VCA
 8. corrplot
-9. tidyverse # tibble, ggplot2, plyr
+9. tidyverse - tibble, ggplot2, plyr
 10. naivebayes
-11. e1071  # SVM
+11. e1071 - SVM
 12. caret
-13. randomForest # random forest
+13. randomForest - random forest
