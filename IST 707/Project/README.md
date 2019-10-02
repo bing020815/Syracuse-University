@@ -11,8 +11,8 @@ Machine Learning Algorithms:
 Packages:
 1. arules - association rule mining
 2. arulesViz
-3. cluster
-4. factoextra - HAC
+3. cluster - clustering algorithms
+4. factoextra - HAC & clustering algorithms & visualization
 5. dendextend 
 6. gridExtra
 7. VCA
