@@ -6,15 +6,15 @@ The datasets are from:
 3. Pokémon moves dataset:  https://pokemondb.net/move
 4. Tweets that contain Pokémon names from Twiter
 
-pandas
-numpy
-matplotlib
-seaborn
-statistics
-re
-json
-plotnine
-requests
-lxml
-tweepy
-pymongo
+pandas  
+numpy  
+matplotlib  
+seaborn  
+statistics  
+re  
+json  
+plotnine  
+requests  
+lxml  
+tweepy  
+pymongo  
