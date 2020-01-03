@@ -8,15 +8,15 @@ The datasets are from:
 4. Tweets that contain Pokémon names from Twiter
 
 
-Programs:
-* Pokemon Project_BJW_MS.ipynb
-     - Answering four research questions
-*. Pokémon GO Pokédex Web scrapping.ipynb
-     - Scrapping Pokémon GO data
-*. Pokemon Moves Data Scrape.ipynb
-     - Scrapping Pokémon Moves data
-*. Pokemon Tweets Collection.ipynb
-      - Collecting tweets
+Programs:  
+* Pokemon Project_BJW_MS.ipynb  
+     - Answering four research questions  
+*. Pokémon GO Pokédex Web scrapping.ipynb  
+     - Scrapping Pokémon GO data  
+*. Pokemon Moves Data Scrape.ipynb  
+     - Scrapping Pokémon Moves data  
+*. Pokemon Tweets Collection.ipynb  
+      - Collecting tweets  
   
 
 
