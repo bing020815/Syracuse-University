@@ -8,6 +8,14 @@ The datasets are from:
 4. Tweets that contain Pokémon names from Twiter
 
 
+Programs:
+* Pokemon Project_BJW_MS.ipynb
+  1. Pokémon GO Pokédex Web scrapping.ipynb
+  2. Pokemon Moves Data Scrape.ipynb
+  3. Pokemon Tweets Collection.ipynb
+  
+
+
 Packages uesed:  
 * pandas  
 * numpy  
