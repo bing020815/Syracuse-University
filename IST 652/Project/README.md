@@ -11,12 +11,12 @@ The datasets are from:
 Programs:  
 * Pokemon Project_BJW_MS.ipynb  
      - Answering four research questions  
-*. Pokémon GO Pokédex Web scrapping.ipynb  
+* Pokémon GO Pokédex Web scrapping.ipynb  
      - Scrapping Pokémon GO data  
-*. Pokemon Moves Data Scrape.ipynb  
+* Pokemon Moves Data Scrape.ipynb  
      - Scrapping Pokémon Moves data  
-*. Pokemon Tweets Collection.ipynb  
-      - Collecting tweets  
+* Pokemon Tweets Collection.ipynb  
+     - Collecting tweets  
   
 
 
