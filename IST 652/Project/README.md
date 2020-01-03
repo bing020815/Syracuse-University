@@ -1,5 +1,4 @@
 This project is the final project for IST 652 Scripting for Data Analysis using Python to work on the semi-structured and unstructured data, and to extract valuable insights from a web site or social media through data wrangling and data science pipelines.
-for analysis.
 
 The dataset are from:
 1. Main dataset from Kaggle:  https://www.kaggle.com/abcsds/Pokémon
