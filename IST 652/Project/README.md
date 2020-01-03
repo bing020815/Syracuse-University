@@ -9,15 +9,15 @@ The datasets are from:
 
 
 Packages uesed:  
- pandas  
- numpy  
- matplotlib  
- seaborn  
- statistics  
- re  
- json  
- plotnine  
- requests  
- lxml  
- tweepy  
- pymongo  
+* pandas  
+* numpy  
+* matplotlib  
+* seaborn  
+* statistics  
+* re  
+* json  
+* plotnine  
+* requests  
+* lxml  
+* tweepy  
+* pymongo  
