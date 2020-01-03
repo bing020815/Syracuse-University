@@ -8,7 +8,7 @@ The datasets are from:
 4. Tweets that contain Pokémon names from Twiter
 
 
-Packagesuesed:
+Packages uesed:  
 pandas  
 numpy  
 matplotlib  
