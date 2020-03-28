@@ -1,1 +1,1 @@
-IST 736 Text Mining
+IST 736 - Text Mining
