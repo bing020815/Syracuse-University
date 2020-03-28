@@ -1,5 +1,5 @@
-HW1: AI tweets
+HW1: AI tweets (60 tweets)
 
 * Key words: 
-  + 'AI', 
-  + 'AI dangerous'
+  + AI 
+  + AI dangerous
