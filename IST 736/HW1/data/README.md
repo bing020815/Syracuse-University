@@ -1,1 +1,3 @@
-IST 736
+HW1 
+AI tweets
+Key words: 'AI', 'AI dangerous'
