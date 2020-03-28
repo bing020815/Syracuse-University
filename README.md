@@ -1,2 +1,2 @@
 # Syracuse-University
-For Syracuse University learning purpose only !!
+For Syracuse University Portfolio
