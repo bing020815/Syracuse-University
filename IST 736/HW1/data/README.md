@@ -1,3 +1,5 @@
-HW1 
-AI tweets
-Key words: 'AI', 'AI dangerous'
+HW1: AI tweets
+
+* Key words: 
+  + 'AI', 
+  + 'AI dangerous'
