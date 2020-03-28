@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r Prep Libraries & Load Data, message=FALSE, warning=FALSE, paged.print=TRUE}
 
-urlToRead <- "https://raw.githubusercontent.com/bing020815/Syracuse-University/master/Google%20Play%20Store%20Apps%20Dataset/googleplaystore.csv"
+urlToRead <- "https://raw.githubusercontent.com/bing020815/Syracuse-University/master/IST%20687/Project/data/googleplaystore.csv"
 appData<- read.csv(url(urlToRead))
 nrow(appData)
 
