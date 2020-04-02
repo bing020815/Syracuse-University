@@ -1,0 +1,115 @@
+---
+title: "Bing-Je_Wu_HW3"
+author: "Bing-Je Wu"
+date: "4/19/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(tidy.opts=list(width.cutoff=60),tidy=TRUE, echo = TRUE)
+```
+
+## #Step 1. Create a function (readStates) to read a CSV file into R
+```{r store url}
+urlRemote <- "https://www2.census.gov/"
+path <- "programs-surveys/popest/tables/2010-2011/state/totals/"
+fileName   <- "nst-est2011-01.csv"
+urlToRead <- paste0(urlRemote, path, fileName)
+
+```
+```{r create readStates function}
+readStates <- function(inputURL){
+  library (RCurl)
+  Temp <- getURL(inputURL)
+  return(read.csv(text=Temp))
+}
+```
+```{r message=FALSE, warning=FALSE}
+mytable <- readStates(urlToRead)
+```
+
+
+## #Step 2. Clean the dataframe
+Remove empty columns:
+```{r Remove empty columns}
+mytable <- mytable[,1:5]
+```
+Remove top 8 rows:
+```{r Remove top 8 rows}
+mytable <- mytable[-1:-8,]
+rownames(mytable)<-NULL
+```
+Remove bottom 6 rows:
+```{r Remove bottom 6 rows}
+mytable <- mytable[-52:-58,]
+```
+Rename column, remove the old column, and normoalize it:
+```{r Rename column, remove the old column, and normoalize it}
+mytable$stateName <-mytable[,1]
+mytable <- mytable[,-1]
+mytable$stateName <- gsub("\\.","",mytable$stateName)
+```
+Normalize X,X.1,X.2,X.3 variables:
+```{r Normalize X,X.1,X.2,X.3 variables}
+mytable$base2010 <- gsub("\\,","",mytable$X)
+mytable$base2010 <- as.numeric(mytable$base2010)
+
+mytable$base2011 <- gsub("\\,","",mytable$X.1)
+mytable$base2011 <- as.numeric(mytable$base2011)
+
+mytable$Jul2010 <- gsub("\\,","",mytable$X.2)
+mytable$Jul2010 <- as.numeric(mytable$Jul2010)
+
+mytable$Jul2011 <- gsub("\\,","",mytable$X.3)
+mytable$Jul2011 <- as.numeric(mytable$Jul2011)
+```
+Remove old X, X.1, X.2, X.3 columns:
+```{r Remove old X, X.1, X.2, X.3 columns}
+mytable <- mytable[,-1:-4]
+```
+Analyze the dataset:
+```{r}
+summary(mytable)
+str(mytable)
+```
+
+## #Step 3. Store and explore the dataset
+Store the dataset as dfStates:
+```{r store the dataset as dfStates}
+dfStates <- mytable
+```
+Calculate the mean for the July2011 data:
+```{r calculate the mean for the July2011 data}
+mean(dfStates$Jul2011)
+```
+
+## #Step 4: Find the state with the Highest Population
+
+```{r }
+dfStates[which.max(dfStates$Jul2011),]
+```
+Based on the July2011 data, California is the state that has the highest population.
+```{r}
+dfStates[order(dfStates$Jul2011, decreasing = FALSE),]
+```
+
+## #Step 5: Explore the distribution of the states
+Write a function:
+```{r function}
+below_percentage <- function(inputvector, inputnumber){
+  Total_number <- length(inputvector)
+  Number_below <- length(inputvector[inputvector<inputnumber])
+  return(Number_below/Total_number)
+}
+```
+Test the function:
+```{r Test the function}
+A = c(1,2,3,4,5)
+a = 2
+below_percentage(A,a)
+```
+Test vector 'dfStates$Jul2011Num' and the mean of dfStates$Jul2011Num':
+```{r }
+below_percentage(dfStates$Jul2011, mean(dfStates$Jul2011))
+```
+

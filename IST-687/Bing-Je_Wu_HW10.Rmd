@@ -1,0 +1,153 @@
+---
+title: "Bing-Jw_Wu_HW10"
+author: "Bing-Je Wu"
+date: "6/9/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1. First read in the AFINN word list. 
+Note that each line is both a word and a score(between -5 and 5). You will need to split the line and create two vectors (one for words and one for scores).
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+#- read the files -#
+afinn_list <- read.delim(file='AFINN-en-165.txt',header=FALSE, stringsAsFactors=FALSE)
+words <- afinn_list[,1]
+head(words)
+scores <- afinn_list[,2]
+head(scores)
+
+```
+
+# 2. Compute the overall score for the MLK speech using the AFINN word list 
+(as opposed to the positive and negative word lists).
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+#- Read a file by using readLine() function -#
+MLKFile <- "MLK.txt"
+MLK <- readLines(MLKFile)
+head(MLK,3)
+str(MLK)  #-- 31 elements in the MLK vector
+library(tm)
+#- Interprets each element of the MLK vector as a document -#
+MLK.vec <- VectorSource(MLK)
+str(MLK.vec)  #-- 31 documents in the MLK.vec vector
+#- Build a corpus class of MLK.vec -#
+MLK.corpus <- Corpus(MLK.vec)
+#- Interface to apply transformation functions to corpus -#
+MLK.corpus <- tm_map(MLK.corpus, content_transformer(tolower)) # lower caps
+MLK.corpus <- tm_map(MLK.corpus, removePunctuation) # remove Punctuation
+MLK.corpus <- tm_map(MLK.corpus, removeNumbers) # remove numbers
+MLK.corpus <- tm_map(MLK.corpus, removeWords,stopwords("english")) # remove stop words
+#- Create Term-document Matrix -#
+MLK.tdm <- TermDocumentMatrix(MLK.corpus)
+MLK.tdm
+str(MLK.tdm)
+inspect(MLK.tdm)
+#- Convert Term-document Matrix into Matrix for computation-#
+MLK.m<- as.matrix(MLK.tdm)
+str(MLK.m)
+head(MLK.m)
+MLKwordCounts <- rowSums(MLK.m)
+MLKwordCounts <- sort(MLKwordCounts,decreasing = T)
+head(MLKwordCounts)
+
+#- create dataframe for afinn_df and MLKwordCounts_df
+afinn_df<- data.frame(words, scores) 
+#- put matched-word counts into MLKwordCounts_df
+#-- get a list of named indexing Vector 
+indexname <- names(MLKwordCounts)
+#-- combine indexname into MLKwordCounts
+MLKwordCounts_df <- data.frame(mwords=indexname, counts=MLKwordCounts)
+rownames(MLKwordCounts_df) <- NULL
+head(MLKwordCounts_df)
+
+#- merge adinn_df and mWordslist
+matchWords_df <- merge(afinn_df, MLKwordCounts_df ,by.x = "words", by.y="mwords")
+#- compute the score and counts
+matchWords_df$subtotal <- matchWords_df$scores*matchWords_df$counts
+#- sum of the total score
+sum(matchWords_df$subtotal)
+
+### The overall score for the MLK speech is 96
+```
+
+# 3. Compute the sentiment score for each quarter
+Then, just as in class, compute the sentiment score for each quarter (25%) of the speech to see how this sentiment analysis is the same or different than what was computing with just the positive and negative word files. Note that since you will be doing almost the exact same thing 4 times (once for each quarter of the speech), you should create a function to do most of the work, and call it 4 times.
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+library(BurStMisc)
+Temp <- ntile(MLK,4)
+MLK1<- Temp[1]
+MLK2<- Temp[2]
+MLK3<- Temp[3]
+MLK4<- Temp[4]
+
+# create sentiment analysis function
+sentiment <- function(text_vector){
+  
+  library(tm)
+  #- Interprets each element of the text_vector as a document -#
+  text_vector.vec <- VectorSource(text_vector)
+  #- Build a corpus class of text_vector.vec -#
+  text_vector.corpus <- Corpus(text_vector.vec)
+  #- Interface to apply transformation functions to corpus -#
+  text_vector.corpus <- tm_map(text_vector.corpus, content_transformer(tolower))
+  text_vector.corpus <- tm_map(text_vector.corpus, removePunctuation)
+  text_vector.corpus <- tm_map(text_vector.corpus, removeNumbers)
+  text_vector.corpus <- tm_map(text_vector.corpus, removeWords,stopwords("english")) 
+  #- Create Term-document Matrix -#
+  text_vector.tdm <- TermDocumentMatrix(text_vector.corpus)
+  #- Convert Term-document Matrix into Matrix for computation -#
+  text_vector.m<- as.matrix(text_vector.tdm)
+  text_vector_wordCounts <- rowSums(text_vector.m)
+  
+  #- create dataframe for afinn_df and MLKwordCounts_df -#
+  #- read the afinn word list files -#
+  
+  afinn_list <- read.delim(file='AFINN-en-165.txt', 
+                           header=FALSE, stringsAsFactors=FALSE)
+  words <- afinn_list[,1]
+  scores <- afinn_list[,2]
+  afinn_df<- data.frame(words, scores) 
+  
+  #- put matched-word counts into MLKwordCounts_df -#
+  #-- get a list of named indexing Vector  --#
+  indexname <- names(text_vector_wordCounts)
+  #-- combine indexname into MLKwordCounts --#
+  text_vector_wordCounts_df <- 
+    data.frame(mwords=indexname, counts=text_vector_wordCounts)
+  rownames(text_vector_wordCounts_df) <- NULL
+  
+  #- merge adinn_df and MLKwordCounts_df -#
+  matchWords_df <- merge(afinn_df, text_vector_wordCounts_df,
+                         by.x = "words", by.y="mwords")
+  #- compute the score and counts -#
+  matchWords_df$subtotal <- matchWords_df$scores*matchWords_df$counts
+  #- sum of the total score -#
+  result <- sum(matchWords_df$subtotal)
+  
+  sprintf("The sentiment score: %s", result)
+}
+
+# First quarter sentiment score
+sentiment(MLK1)
+# Second quarter sentiment score
+sentiment(MLK2)
+# Third quarter sentiment score
+sentiment(MLK3)
+# Fourth quarter sentiment score
+sentiment(MLK4)
+
+```
+
+# 4. Finally, plot the results (i.e, 4 numbers) via a bar chart.
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+sentimentplot <- data.frame(MLK=c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"), 
+                            sentimentScore = c(29,14,26,27))
+library(ggplot2)
+ggplot(sentimentplot, aes(x=MLK, y=sentimentScore)) + 
+  geom_bar(stat = "identity", aes(fill=as.factor(MLK))) +
+  labs(fill = "MLK speech") +
+  ggtitle("MLK Speech Sentiment Analysis with Afinn Word List in 4 Parts")
+```
