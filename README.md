@@ -107,7 +107,8 @@ As a Syracuse University student in the Applied Data Science program, I have com
 * <span id="ist664">IST 664 - Natural Language Processing</span>
 	- Linguistic and computational aspects of natural language processing technologies.
 
-* <span id="ist736">IST 736 - Text Mining</span>
+* [<span id="ist736">IST 736 - Text Mining</span>](https://github.com/bing020815/text_prediction_application)
 	- Concepts and methods for knowledge discovery from large amounts of text data and the application of text mining techniques for business intelligence, digital humanities, and social behavior analysis
+
 
 [<p align='center'>Top</p>](#syracuse-university)
