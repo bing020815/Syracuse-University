@@ -11,11 +11,11 @@ Master of Science, Applied Data Science Portfolio
 
 ## Introduction
 
-<a href="mailto: bwu117@syr.edu">Email</a> |
+<a href="mailto: bwu117@g.syr.edu">Email</a> |
 <a href="https://www.linkedin.com/in/bing-je-wu">Linkedin</a> <i class="fa fa-linkedin"></i> |
 <a href="https://www.dropbox.com/s/peyg5ew762tll89/Resume.pdf?dl=0">Resume</a> 
  
-My name is Bing-Je Wu. I am a passionate and resourceful data science practitioner with various background in Mathematics and Industrial Engineering. I have extensive knowledge of advanced statistics, data analysis, machine learning algorithms, and data mining techniques. Experienced with several statistical tools, BI tools, programming language, database software, and ERP systems, such as Minitab, Excel, Tableau, R, Python, Microsoft Access, Microsoft SQL Server, Hadoop, MongoDB, Redis, Cassandra and Kafka.  
+My name is Bing-Je Wu. I am a passionate and resourceful data science practitioner with various background in Mathematics and Industrial Engineering. I have extensive knowledge of advanced statistics, data analysis, machine learning algorithms, and data mining techniques. Experienced with several statistical tools, BI tools, programming languages, database softwares, and ERP systems, such as Minitab, Excel, Tableau, R, Python, Microsoft Access, Microsoft SQL Server, Hadoop, MongoDB, Redis, Cassandra and Kafka.  
 
 As a Syracuse University student in the Applied Data Science program, I have completed courses offered by the School of Information Studies and Whitman School of management, including Primary Core courses, Analytics Application Core course, and Elective Courses. The concentration of studies are mostly on the mathematics, statistics and machine learning tracks. 
   
@@ -73,9 +73,9 @@ As a Syracuse University student in the Applied Data Science program, I have com
 </tbody>
 </table>
 
-<span id="Introduction"> </span>
   
   
+
 
 ## Course Details
 * <span id="ist687">IST 687 - Introduction to Data Science</span>
