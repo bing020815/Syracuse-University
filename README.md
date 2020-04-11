@@ -110,4 +110,4 @@ As a Syracuse University student in the Applied Data Science program, I have com
 * <span id="ist736">IST 736 - Text Mining</span>
 	- Concepts and methods for knowledge discovery from large amounts of text data and the application of text mining techniques for business intelligence, digital humanities, and social behavior analysis
 
-[Top](#syracuse-university)
+[<p align='center'>Top</p>](#syracuse-university)
