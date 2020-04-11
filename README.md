@@ -15,7 +15,7 @@ Master of Science, Applied Data Science Portfolio
 <a href="https://www.linkedin.com/in/bing-je-wu">Linkedin</a> <i class="fa fa-linkedin"></i> |
 <a href="https://www.dropbox.com/s/peyg5ew762tll89/Resume.pdf?dl=0">Resume</a> 
  
-My name is Bing-Je Wu. I am a passionate and resourceful data science practitioner with various background in Mathematics and Industry Engineering. I have extensive knowledge of advanced statistics, data analysis, machine learning algorithms, and data mining techniques. Experienced with several statistical tools, BI tools, programming language, database software, and ERP systems, such as Minitab, Excel, Tableau, R, Python, Microsoft Access, Microsoft SQL Server, Hadoop, MongoDB, Redis, Cassandra and Kafka.  
+My name is Bing-Je Wu. I am a passionate and resourceful data science practitioner with various background in Mathematics and Industrial Engineering. I have extensive knowledge of advanced statistics, data analysis, machine learning algorithms, and data mining techniques. Experienced with several statistical tools, BI tools, programming language, database software, and ERP systems, such as Minitab, Excel, Tableau, R, Python, Microsoft Access, Microsoft SQL Server, Hadoop, MongoDB, Redis, Cassandra and Kafka.  
 
 As a Syracuse University student in the Applied Data Science program, I have completed courses offered by the School of Information Studies and Whitman School of management, including Primary Core courses, Analytics Application Core course, and Elective Courses. The concentration of studies are mostly on the mathematics, statistics and machine learning tracks. 
   
@@ -92,7 +92,7 @@ As a Syracuse University student in the Applied Data Science program, I have com
 	- Employ data storytelling and apply data mining concepts, algorithms and evaluation methods for technical designs and solutions
 
 * <span id="ist718">IST 718 - Big Data Analytics</span>
-	- Develop analytical processing tools and techniques for information professionals using Python, Spark, and TensorFlow. 
+	- Develop analytical processing tools and techniques for information professionals using Python, Spark, and TensorFlow
 
 * <span id="ist652">IST 652 - Scripting for Data Analysis</span>
 	- Scripting for the data science pipeline. Acquiring, accessing, and transforming data in the forms of structured, semistructured, and unstructured data.
