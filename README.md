@@ -13,7 +13,7 @@ Master of Science, Applied Data Science Portfolio
 
 <a href="mailto: bwu117@syr.edu"><img src="images/icon_email.svg" width="20px" align="top" title="Email"></a> |
 <a href="https://www.linkedin.com/in/bing-je-wu"><img src="images/icon_linkedin.png" width="20px" align="top" title="Linkedin"></a> |
-<a href="https://www.dropbox.com/s/peyg5ew762tll89/Resume.pdf?dl=0"><img src="images/icon_resume.png" width="20px" align="top" title="Resume"></a> |
+<a href="https://www.dropbox.com/s/d2v0ch9owq6yzxe/Resume.pdf?dl=0"><img src="images/icon_resume.png" width="20px" align="top" title="Resume"></a> |
 <a href="https://youtu.be/GuLTMSD3SVM"><img src="images/icon_presentation.svg" width="20px" align="top" title="Pesentation"></a>
 
  
