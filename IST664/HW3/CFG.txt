@@ -1,0 +1,416 @@
+['Arthur', 'is', 'the', 'king', '.']
+(START
+  (S1
+    (NP (PropN (Proper Arthur)))
+    (VP (V (VerbT is)) (NP (Det the) (NP (N (Noun king)))))
+    (Eos .)))
+
+['Arthur', 'rides', 'the', 'horse', 'near', 'the', 'castle', '.']
+(START
+  (S1
+    (NP (PropN (Proper Arthur)))
+    (VP
+      (V (VerbT rides))
+      (NP
+        (Det the)
+        (NP
+          (N (Noun horse))
+          (PP (Prep near) (NP (Det the) (NP (N (Noun castle))))))))
+    (Eos .)))
+
+(START
+  (S1
+    (NP (PropN (Proper Arthur)))
+    (VP
+      (V (VerbT rides))
+      (NP (Det the) (NP (N (Noun horse))))
+      (PP (Prep near) (NP (Det the) (NP (N (Noun castle))))))
+    (Eos .)))
+
+['Arthur', 'rides', 'the', 'plodding', 'horse', 'near', 'the', 'castle', '.']
+(START
+  (S1
+    (NP (PropN (Proper Arthur)))
+    (VP
+      (V (VerbT rides))
+      (NP
+        (Det the)
+        (JJ (ADJ plodding))
+        (NP
+          (N (Noun horse))
+          (PP (Prep near) (NP (Det the) (NP (N (Noun castle))))))))
+    (Eos .)))
+
+(START
+  (S1
+    (NP (PropN (Proper Arthur)))
+    (VP
+      (V (VerbT rides))
+      (NP (Det the) (JJ (ADJ plodding)) (NP (N (Noun horse))))
+      (PP (Prep near) (NP (Det the) (NP (N (Noun castle))))))
+    (Eos .)))
+
+['the', 'Holy_Grail', 'is', 'a', 'chalice', '.']
+(START
+  (S1
+    (NP (Det the) (NP (PropN (NNP Holy_Grail))))
+    (VP (V (VerbT is)) (NP (Det a) (NP (N (Noun chalice)))))
+    (Eos .)))
+
+['the', 'sensational', 'Holy_Grail', 'is', 'a', 'sacred', 'chalice', '.']
+(START
+  (S1
+    (NP
+      (Det the)
+      (JJ (ADJ sensational))
+      (NP (PropN (NNP Holy_Grail))))
+    (VP
+      (V (VerbT is))
+      (NP (Det a) (JJ (ADJ sacred)) (NP (N (Noun chalice)))))
+    (Eos .)))
+
+['every', 'coconut', 'was', 'carried', 'to', 'the', 'hottest', 'mountains', '.']
+(START
+  (S1
+    (NP (Det every) (NP (N (Noun coconut))))
+    (VP
+      (V (Vpast was))
+      (VP
+        (V (Vpast carried))
+        (PP
+          (TO to)
+          (NP (Det the) (JJ (JJS hottest)) (NP (N (NNS mountains)))))))
+    (Eos .)))
+
+(START
+  (S1
+    (NP (Det every) (NP (N (Noun coconut))))
+    (VP
+      (V (Vpast was))
+      (VP
+        (V (VBN carried))
+        (PP
+          (TO to)
+          (NP (Det the) (JJ (JJS hottest)) (NP (N (NNS mountains)))))))
+    (Eos .)))
+
+['sixty', 'strangers', 'are', 'at', 'the', 'Round_Table', '.']
+(START
+  (S1
+    (NP (NUM sixty) (N (NNS strangers)))
+    (VP
+      (V (VBS are))
+      (PP (Prep at) (NP (Det the) (NP (PropN (NNP Round_Table))))))
+    (Eos .)))
+
+['Sir_Lancelot', 'might', 'have', 'spoken', '.']
+(START
+  (S1
+    (NP (PropN (Proper Sir_Lancelot)))
+    (VP (V (MD might)) (VP (V (VB have)) (VP (V (VBN spoken)))))
+    (Eos .)))
+
+(START
+  (S1
+    (NP (PropN (Proper Sir_Lancelot)))
+    (VP (V (MD might)) (VP (V (VBS have)) (VP (V (VBN spoken)))))
+    (Eos .)))
+
+['Guinevere', 'had', 'been', 'riding', 'with', 'Patsy', 'for', 'five', 'weary', 'nights', '.']
+(START
+  (S1
+    (NP (PropN (Proper Guinevere)))
+    (VP
+      (V (Vpast had))
+      (VP
+        (V (VBN been))
+        (NP
+          (VBG riding)
+          (PP (Prep with) (NP (PropN (Proper Patsy)))))
+        (PP
+          (Prep for)
+          (NP (NUM five) (JJ (ADJ weary)) (NP (N (NNS nights)))))))
+    (Eos .)))
+
+(START
+  (S1
+    (NP (PropN (Proper Guinevere)))
+    (VP
+      (V (Vpast had))
+      (VP
+        (V (VBN been))
+        (VP
+          (V (VBG riding))
+          (PP (Prep with) (NP (PropN (Proper Patsy))))
+          (PP
+            (Prep for)
+            (NP (NUM five) (JJ (ADJ weary)) (NP (N (NNS nights))))))))
+    (Eos .)))
+
+(START
+  (S1
+    (NP (PropN (Proper Guinevere)))
+    (VP
+      (V (VBN had))
+      (VP
+        (V (VBN been))
+        (NP
+          (VBG riding)
+          (PP (Prep with) (NP (PropN (Proper Patsy)))))
+        (PP
+          (Prep for)
+          (NP (NUM five) (JJ (ADJ weary)) (NP (N (NNS nights)))))))
+    (Eos .)))
+
+(START
+  (S1
+    (NP (PropN (Proper Guinevere)))
+    (VP
+      (V (VBN had))
+      (VP
+        (V (VBN been))
+        (VP
+          (V (VBG riding))
+          (PP (Prep with) (NP (PropN (Proper Patsy))))
+          (PP
+            (Prep for)
+            (NP (NUM five) (JJ (ADJ weary)) (NP (N (NNS nights))))))))
+    (Eos .)))
+
+['Sir_Bedevere', 'might', 'have', 'been', 'suggesting', 'this', 'quest', '.']
+(START
+  (S1
+    (NP (PropN (Proper Sir_Bedevere)))
+    (VP
+      (V (MD might))
+      (VP
+        (V (VB have))
+        (VP
+          (V (VBN been))
+          (VP
+            (V (VBG suggesting))
+            (NP (Det this) (NP (N (Noun quest))))))))
+    (Eos .)))
+
+(START
+  (S1
+    (NP (PropN (Proper Sir_Bedevere)))
+    (VP
+      (V (MD might))
+      (VP
+        (V (VBS have))
+        (VP
+          (V (VBN been))
+          (VP
+            (V (VBG suggesting))
+            (NP (Det this) (NP (N (Noun quest))))))))
+    (Eos .)))
+
+['the', 'Britons', 'migrate', 'south', 'frequently', '.']
+(START
+  (S1
+    (NP (Det the) (NP (PropN (ProperS Britons))))
+    (VP (V (VB migrate)) (RB south) (RB frequently))
+    (Eos .)))
+
+(START
+  (S1
+    (NP (Det the) (NP (PropN (ProperS Britons))))
+    (VP (V (VBS migrate)) (RB south) (RB frequently))
+    (Eos .)))
+
+['Arthur', 'and', 'Guinevere', 'ride', 'frequently', 'near', 'the', 'castle', '.']
+(START
+  (S1
+    (NP
+      (PropN (Proper Arthur))
+      (C (CC and))
+      (PropN (Proper Guinevere)))
+    (VP
+      (V (VB ride))
+      (RB frequently)
+      (PP (Prep near) (NP (Det the) (NP (N (Noun castle))))))
+    (Eos .)))
+
+(START
+  (S1
+    (NP
+      (PropN (Proper Arthur))
+      (C (CC and))
+      (PropN (Proper Guinevere)))
+    (VP
+      (V (VBS ride))
+      (RB frequently)
+      (PP (Prep near) (NP (Det the) (NP (N (Noun castle))))))
+    (Eos .)))
+
+['he', 'suggests', 'to', 'grow', 'fruit', 'at', 'home', '.']
+(START
+  (S1
+    (NP (Pronoun (PProp he)))
+    (VP
+      (V (VB3rd suggests))
+      (PP
+        (TO to)
+        (VP
+          (V (VB grow))
+          (NP (N (Noun fruit)) (PP (Prep at) (NP (N (Noun home))))))))
+    (Eos .)))
+
+(START
+  (S1
+    (NP (Pronoun (PProp he)))
+    (VP
+      (V (VB3rd suggests))
+      (PP
+        (TO to)
+        (VP
+          (V (VBS grow))
+          (NP (N (Noun fruit)) (PP (Prep at) (NP (N (Noun home))))))))
+    (Eos .)))
+
+(START
+  (S1
+    (NP (Pronoun (PProp he)))
+    (VP
+      (V (VB3rd suggests))
+      (PP
+        (TO to)
+        (VP
+          (V (VB grow))
+          (NP (N (Noun fruit)))
+          (PP (Prep at) (NP (N (Noun home)))))))
+    (Eos .)))
+
+(START
+  (S1
+    (NP (Pronoun (PProp he)))
+    (VP
+      (V (VB3rd suggests))
+      (PP
+        (TO to)
+        (VP
+          (V (VBS grow))
+          (NP (N (Noun fruit)))
+          (PP (Prep at) (NP (N (Noun home)))))))
+    (Eos .)))
+
+(START
+  (S1
+    (NP (Pronoun (PProp he)))
+    (VP
+      (V (VB3rd suggests))
+      (PP (TO to) (VP (V (VB grow)) (NP (N (Noun fruit)))))
+      (PP (Prep at) (NP (N (Noun home)))))
+    (Eos .)))
+
+(START
+  (S1
+    (NP (Pronoun (PProp he)))
+    (VP
+      (V (VB3rd suggests))
+      (PP (TO to) (VP (V (VBS grow)) (NP (N (Noun fruit)))))
+      (PP (Prep at) (NP (N (Noun home)))))
+    (Eos .)))
+
+['riding', 'to', 'Camelot', 'is', 'not', 'hard', '.']
+(START
+  (S1
+    (NP (VBG riding) (PP (TO to) (NP (PropN (NNP Camelot)))))
+    (VP (V (VerbT is)) (NOT not) (ADJ hard))
+    (Eos .)))
+
+['do', 'coconuts', 'speak', '?']
+(START
+  (S1
+    (VP (V (DO do)) (NP (N (NNS coconuts))) (VP (V (VB speak))))
+    (Eos ?)))
+
+(START
+  (S1
+    (VP (V (DO do)) (NP (N (NNS coconuts))) (VP (V (VBS speak))))
+    (Eos ?)))
+
+['why', 'does', 'England', 'have', 'a', 'king', '?']
+(START
+  (S1
+    (WHP (WRB why) (DO does))
+    (NP (PropN (NNP England)))
+    (VP (V (VB have)) (NP (Det a) (NP (N (Noun king)))))
+    (Eos ?)))
+
+(START
+  (S1
+    (WHP (WRB why) (DO does))
+    (NP (PropN (NNP England)))
+    (VP (V (VBS have)) (NP (Det a) (NP (N (Noun king)))))
+    (Eos ?)))
+
+['what', 'horse', 'does', 'Arthur', 'ride', '?']
+(START
+  (S1
+    (WHP (WDT what) (NP (N (Noun horse))) (DO does))
+    (NP (PropN (Proper Arthur)))
+    (VP (V (VB ride)))
+    (Eos ?)))
+
+(START
+  (S1
+    (WHP (WDT what) (NP (N (Noun horse))) (DO does))
+    (NP (PropN (Proper Arthur)))
+    (VP (V (VBS ride)))
+    (Eos ?)))
+
+['who', 'does', 'Arthur', 'suggest', 'she', 'carry', '?']
+(START
+  (S1
+    (WHP (WP who) (DO does))
+    (NP (PropN (Proper Arthur)))
+    (VP
+      (V (VB suggest))
+      (NP (Pronoun (PProp she)))
+      (VP (V (VB carry))))
+    (Eos ?)))
+
+(START
+  (S1
+    (WHP (WP who) (DO does))
+    (NP (PropN (Proper Arthur)))
+    (VP
+      (V (VB suggest))
+      (NP (Pronoun (PProp she)))
+      (VP (V (VBS carry))))
+    (Eos ?)))
+
+
+(START
+  (S1
+    (WHP (WP who) (DO does))
+    (NP (PropN (Proper Arthur)))
+    (VP
+      (V (VBS suggest))
+      (NP (Pronoun (PProp she)))
+      (VP (V (VB carry))))
+    (Eos ?)))
+
+(START
+  (S1
+    (WHP (WP who) (DO does))
+    (NP (PropN (Proper Arthur)))
+    (VP
+      (V (VBS suggest))
+      (NP (Pronoun (PProp she)))
+      (VP (V (VBS carry))))
+    (Eos ?)))
+
+['do', 'not', 'drink', 'again', '!']
+['Arthur', 'does', 'drunk', 'with', 'Patsy', '.']
+(START
+  (S1
+    (NP (PropN (Proper Arthur)))
+    (VP
+      (V (DO does))
+      (VP
+        (V (VBN drunk))
+        (PP (Prep with) (NP (PropN (Proper Patsy))))))
+    (Eos .)))
